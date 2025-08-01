@@ -1,0 +1,521 @@
+{
+  "name": "My workflow 2",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -512,
+        496
+      ],
+      "id": "f000f7c6-60c7-4a6f-b245-efadecc97e8c",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "fdc40194-662b-402b-b731-6405ce91259e",
+              "leftValue": "={{ $json[\"Send Status\"] }}",
+              "rightValue": "SENT",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -80,
+        496
+      ],
+      "id": "190f16ee-26d0-4052-a37a-14509d15fa6a",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        144,
+        480
+      ],
+      "id": "ceef4f56-86b3-4a2c-8f8f-2934e9e7e29e",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "jsCode": "const templates = items.map(item => item.json);\n\nif (!templates || templates.length === 0) {\n  throw new Error('No templates found');\n}\n\nconst output = items.map(() => {\n  const index = Math.floor(Math.random() * templates.length);\n  const template = templates[index];\n\n  const chosenBody = template.Body2 || template.Body || '';\n  const bodyLower = chosenBody.toLowerCase();\n\n  // Check if body already starts with a greeting\n  const alreadyHasGreeting = bodyLower.startsWith('hello') || bodyLower.startsWith('hi');\n\n  // Prepare custom greeting if needed\n  let greeting = '';\n  if (!alreadyHasGreeting) {\n    if (template.Name) {\n      greeting = `Hello, ${template.Name}!`;\n    } else if (chosenBody.includes(\"'\")) {\n      greeting = \"Hey there!\";\n    } else {\n      greeting = \"Hello!\";\n    }\n    greeting += '<br><br>'; // add spacing\n  }\n\n  const bodyHtml = greeting + chosenBody.replace(/\\n/g, '<br>');\n\n  return {\n    json: {\n      subject: template.Subject || template.subject || 'No subject',\n      body: bodyHtml\n    }\n  };\n});\n\nreturn output;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        592,
+        304
+      ],
+      "id": "86cd23e1-8b62-46fd-934a-8f84be8fcccf",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.1,
+      "position": [
+        816,
+        384
+      ],
+      "id": "203938ed-4c36-4796-a565-12538c6dd32e",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f6a6ba02-422b-4e7c-a73e-03901cc2db0c",
+              "name": "body",
+              "value": "={{ $json.body.replace(\"[Name]\", ($json.Name ? $json.Name.trim() : \"there\")) }}\n",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1024,
+        384
+      ],
+      "id": "fe8caae6-1201-4cf9-884e-8f061f0c02d9",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.1,
+      "position": [
+        1472,
+        320
+      ],
+      "id": "dbe38c6b-36b0-40b5-b170-547820c3b8b3",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "amount": 120
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1472,
+        576
+      ],
+      "id": "1e932873-2b17-46cb-8135-3bf177d68f2d",
+      "name": "Wait",
+      "webhookId": "59d0e464-9eef-4147-9d07-e283193ed822"
+    },
+    {
+      "parameters": {
+        "content": "   ## Get Leads Data From Google Sheet",
+        "height": 320,
+        "width": 380
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -336,
+        384
+      ],
+      "typeVersion": 1,
+      "id": "bbb000b6-60a0-4663-8521-b08886d73489",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Get Email Templates From Google Sheet\n",
+        "height": 300,
+        "width": 420
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        304,
+        176
+      ],
+      "typeVersion": 1,
+      "id": "40ab5943-fdb5-4932-b0e4-de7ebf677119",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Log The Status",
+        "height": 280,
+        "width": 300
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1616,
+        240
+      ],
+      "typeVersion": 1,
+      "id": "a9701fe1-5356-45b3-9179-dc0a63a78a0c",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1lzIkakv6um-wX77x9Qhj7wiqXQnMgK1ZWiPg8mrdxI4",
+          "mode": "list",
+          "cachedResultName": "Travel vlogs for n8n",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1lzIkakv6um-wX77x9Qhj7wiqXQnMgK1ZWiPg8mrdxI4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1lzIkakv6um-wX77x9Qhj7wiqXQnMgK1ZWiPg8mrdxI4/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        -304,
+        496
+      ],
+      "id": "e550b4a2-c1f4-4fba-b28f-71c264d2627d",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "oeMfi0Tdnz7f1I4C",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1lzIkakv6um-wX77x9Qhj7wiqXQnMgK1ZWiPg8mrdxI4",
+          "mode": "list",
+          "cachedResultName": "Travel vlogs for n8n",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1lzIkakv6um-wX77x9Qhj7wiqXQnMgK1ZWiPg8mrdxI4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1305388152,
+          "mode": "list",
+          "cachedResultName": "Sheet4",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1lzIkakv6um-wX77x9Qhj7wiqXQnMgK1ZWiPg8mrdxI4/edit#gid=1305388152"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        368,
+        304
+      ],
+      "id": "e84c926b-c2b2-4f44-aa2f-b635d06bb379",
+      "name": "Get row(s) in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "oeMfi0Tdnz7f1I4C",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.email }}",
+        "subject": "={{ $json.subject }}",
+        "message": "={{ $json.body }}",
+        "options": {
+          "appendAttribution": false,
+          "senderName": "Editing Aura"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1248,
+        464
+      ],
+      "id": "ef54ce26-1368-483d-844e-65d95f8f3c1c",
+      "name": "Send a message",
+      "webhookId": "3fbf6bf1-efca-44a5-8ed0-8e0fb1d4143f",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "b6hmrUv3GyVs0rau",
+          "name": "Edititng Aura"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1lzIkakv6um-wX77x9Qhj7wiqXQnMgK1ZWiPg8mrdxI4",
+          "mode": "list",
+          "cachedResultName": "Travel vlogs for n8n",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1lzIkakv6um-wX77x9Qhj7wiqXQnMgK1ZWiPg8mrdxI4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1lzIkakv6um-wX77x9Qhj7wiqXQnMgK1ZWiPg8mrdxI4/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "email": "={{ $json.email }}",
+            "Sent status": "={{ $json.labelIds[0] }}",
+            "time": "={{ new Date().toLocaleTimeString(\"en-GB\", { timeZone: \"Asia/Karachi\", hour12: false }) }}",
+            "Name": "={{ $json.email }}"
+          },
+          "matchingColumns": [
+            "email"
+          ],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Sent status",
+              "displayName": "Sent status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "time",
+              "displayName": "time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        1696,
+        320
+      ],
+      "id": "3621ef76-a9dd-42b8-a769-7822035acd27",
+      "name": "Append or update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "oeMfi0Tdnz7f1I4C",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Get row(s) in sheet1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          },
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "fb1f11a4-4d63-4df0-a7d5-f7e24d17644a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "bd06447806744379d2421f9f7144c1cb5307c431c44d2bac716b092589a77a49"
+  },
+  "id": "8OPrw3vFHQBLIfQi",
+  "tags": []
+}
